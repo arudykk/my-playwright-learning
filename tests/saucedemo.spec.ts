@@ -65,13 +65,12 @@ test.describe("SauceDemo", () => {
       await page.getByRole("button", { name: "Login" }).click();
 
       await expect(
-       page.locator('[data-test="error"]'),
-       "Locked out user should see the exact lockout error message"
+        page.locator('[data-test="error"]'),
+        "Locked out user should see the exact lockout error message"
       ).toHaveText("Epic sadface: Sorry, this user has been locked out.");
     });
-//hihihi
+
   });
-  
 
   test.describe("Authenticated user actions", () => {
 
@@ -91,6 +90,16 @@ test.describe("SauceDemo", () => {
       ).toHaveText("1");
     });
 
+    test("Add two products to cart and verify badge count", async ({ page }) => {
+      await page.getByRole("button", { name: "Add to cart" }).nth(0).click();
+      await page.getByRole("button", { name: "Add to cart" }).nth(0).click();
+
+      await expect(
+        page.locator(".shopping_cart_badge"),
+        "Cart badge should show 2 after adding two products"
+      ).toHaveText("2");
+    });
+
     test("Remove product from cart", async ({ page }) => {
       await page.getByRole("button", { name: "Add to cart" }).first().click();
       await page.getByRole("button", { name: "Remove" }).first().click();
@@ -99,6 +108,24 @@ test.describe("SauceDemo", () => {
         page.locator(".shopping_cart_badge"),
         "Cart badge should not be visible after removing product"
       ).not.toBeVisible();
+    });
+
+    test("User can complete checkout and see success message", async ({ page }) => {
+      await page.getByRole("button", { name: "Add to cart" }).first().click();
+      await page.locator(".shopping_cart_link").click();
+      await page.getByRole("button", { name: "Checkout" }).click();
+
+      await page.getByPlaceholder("First Name").fill("John");
+      await page.getByPlaceholder("Last Name").fill("Doe");
+      await page.getByPlaceholder("Zip/Postal Code").fill("12345");
+      await page.getByRole("button", { name: "Continue" }).click();
+
+      await page.getByRole("button", { name: "Finish" }).click();
+
+      await expect(
+        page.locator(".complete-header"),
+        "Success message should be shown after completing checkout"
+      ).toHaveText("Thank you for your order!");
     });
 
   });
